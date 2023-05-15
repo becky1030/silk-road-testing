@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Load data from an external GeoJSON file</title>
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map"></div>
+
+    <script>
+        // TO MAKE THE MAP APPEAR YOU MUST
+        // ADD YOUR ACCESS TOKEN FROM
+        // https://account.mapbox.com
+        mapboxgl.accessToken = 'pk.eyJ1IjoiYmVja3l5eXl5IiwiYSI6ImNsZWV2azM0bTBiN2k0NG12cnEybml0am0ifQ.pTk0bhJgKynBeJMf1r8N3A';
+        const map = new mapboxgl.Map({
+            container: 'map', // container ID
+            // Choose from Mapbox's core styles, or make your own style with Mapbox Studio
+            style: 'mapbox://styles/beckyyyyy/clhjys93t030w01p4ejwb4n6r', // style URL
+            projection: 'naturalEarth', // Display the map as a globe, since satellite-v9 defaults to Mercator
+            zoom: 10, // starting zoom
+            center: [76.9500661,
+                43.3409728], // // starting center in [lng, lat]
+            // center: [83.225045, 39.306184],
+            pitch: 0
+        });
+
+        // url icon maki
+        // const geojson = {
+        //     "type": "FeatureCollection",
+        //     "features": [
+        //         {
+        //             "type": "Feature",
+        //             "geometry": {
+        //                 "type": "Point",
+        //                 "coordinates": [
+        //                     76.9500661,
+        //                     43.3409728
+        //                 ]
+        //             },
+        //             "properties": {
+        //                 "iconSize": [
+        //                     60,
+        //                     60
+        //                 ],
+        //                 "name": "Almaty Railstation\n"
+
+        //             }
+        //         }
+        //     ]
+        // };
+
+
+
+        map.on('style.load', () => {
+            map.setFog({}); // Set the default atmosphere style
+        });
+
+        // silk road
+        map.on('load', () => {
+            map.addSource('silkroad', {
+                'type': 'geojson',
+                // Use a URL for the value for the `data` property.
+                'data': 'silkroad.geojson'
+            });
+
+            map.addLayer({
+                'id': 'silkroad-layer',
+                'type': 'line',
+                'source': 'silkroad',
+                'layout': {
+                    'line-cap': 'round',
+                    'line-join': 'round'
+                },
+                'paint': {
+                    'line-color': ['get', 'color'],
+                    'line-width': 5,
+                    'line-opacity': 0.5
+
+                }
+            });
+        });
+
+
+
+
+
+        // map.on('load', () => {
+        //     map.addSource('railstation', {
+        //         'type': 'geojson',
+        //         // Use a URL for the value for the `data` property.
+        //         'data': 'railstation.geojson'
+        //     });
+
+
+
+        // add symbol
+        map.on('load', () => {
+            map.loadImage('train.png', (error, image) => {
+                if (error) throw error;
+                map.addImage('train-icon', image, { 'sdf': true });
+                map.addSource('railstation', {
+                    'type': 'geojson',
+                    'data': 'railstation.geojson'
+                });
+                map.addLayer({
+                    'id': 'railstation-layer',
+                    'type': 'symbol',
+                    'source': 'railstation',
+                    'layout': {
+                        'icon-image': 'train-icon',
+                        'icon-size': 0.05,
+                        // get the title name from the source's "title" property
+                        'text-field': ['get', 'title'],
+                        'text-font': [
+                            'Open Sans Semibold',
+                            'Arial Unicode MS Bold'
+                        ],
+                        'text-offset': [0, 1.25],
+                        'text-anchor': 'top'
+                    },
+                    'paint': {
+                        'icon-color': '#000000',
+
+
+                    }
+                }
+                )
+
+            }
+            )
+
+
+            // 'paint': {
+            //     'icon-color': [
+            //         'match', // Use the 'match' expression: https://docs.mapbox.com/mapbox-gl-js/style-spec/#expressions-match
+            //         ['get', 'STORE_TYPE'], // Use the result 'STORE_TYPE' property
+            //         'Convenience Store',
+            //         '#FF8C00',
+            //         'Convenience Store With Gas',
+            //         '#FF8C00',
+            //         'Pharmacy',
+            //         '#FF8C00',
+            //         'Specialty Food Store',
+            //         '#9ACD32',
+            //         'Small Grocery Store',
+            //         '#008000',
+            //         'Supercenter',
+            //         '#008000',
+            //         'Superette',
+            //         '#008000',
+            //         'Supermarket',
+            //         '#008000',
+            //         'Warehouse Club Store',
+            //         '#008000',
+            //         '#FF0000' // any other store type
+            //                 ]
+            //             }
+            //         });
+            //     });
+            // });
+
+
+
+
+
+            // url icon maki
+            // // Add markers to the map.
+            // for (const marker of geojson.features) {
+            //     // Create a DOM element for each marker.
+            //     const el = document.createElement('div');
+            //     const width = marker.properties.iconSize[0];
+            //     const height = marker.properties.iconSize[1];
+            //     el.className = 'marker';
+            //     el.style.backgroundImage = `url(rail.svg)`;
+            //     el.style.width = `${width}px`;
+            //     el.style.height = `${height}px`;
+            //     el.style.backgroundSize = '100%';
+
+            //     // el.addEventListener('click', () => {
+            //     // window.alert(marker.properties.message);
+            //     // });
+
+            //     // Add markers to the map.
+            //     new mapboxgl.Marker(el)
+            //         .setLngLat(marker.geometry.coordinates)
+            //         .addTo(map);
+            // }
+
+
+
+            // road points
+            // map.addLayer({
+            //     'id': 'railstation-layer',
+            //     'type': 'circle',
+            //     'source': 'railstation',
+
+            //     'paint': {
+            //         'circle-radius': 6,
+            //         'circle-color': ['get', 'color'],
+            //         'circle-opacity': 0.6,
+
+
+            //     }
+
+
+            // });
+
+
+
+            // road symbol
+            // map.addLayer({
+            //     'id': 'railstation-layer',
+            //     'type': 'circle',
+            //     'source': 'railstation',
+
+            //     'paint': {
+            //         'circle-radius': 6,
+            //         'circle-color': ['get', 'color'],
+            //         'circle-opacity': 0.6,
+
+
+            //     }
+
+
+            // });
+        });
+
+
+
+    </script>
+
+</body>
+
+</html>
